@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ultimate Line Caller</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Ultimate Line Caller</h1>
+      <div class="controls">
+        <div class="control-group">
+          <label for="contextSelect">Next point:</label>
+          <select id="contextSelect">
+            <option value="O">Offense</option>
+            <option value="D">Defense</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="ratioSelect">Gender ratio:</label>
+          <select id="ratioSelect">
+            <option value="4M-3W">4 MM / 3 WM</option>
+            <option value="3M-4W">3 MM / 4 WM</option>
+            <option value="auto">Auto alternate</option>
+          </select>
+        </div>
+        <button id="suggestBtn" class="primary">Suggest line</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel roster-panel">
+        <div class="panel-header">
+          <h2>Roster</h2>
+          <div class="panel-actions">
+            <button id="exportBtn">Export</button>
+            <label class="import-label">
+              <input type="file" id="importFile" accept="application/json" hidden>
+              <span class="button like">Import</span>
+            </label>
+          </div>
+        </div>
+        <form id="addPlayerForm" class="add-player">
+          <input id="playerName" type="text" placeholder="Name" required>
+          <select id="playerGender" required>
+            <option value="M">Man-Matching (MM)</option>
+            <option value="W">Woman-Matching (WM)</option>
+          </select>
+          <select id="playerPosition" required>
+            <option value="both">Both</option>
+            <option value="handler">Handler</option>
+            <option value="cutter">Cutter</option>
+          </select>
+          <select id="playerPref" required>
+            <option value="either">Either</option>
+            <option value="O">O-line</option>
+            <option value="D">D-line</option>
+          </select>
+          <button type="submit" class="primary">Add</button>
+        </form>
+        <div id="rosterList" class="roster-list"></div>
+      </section>
+
+      <section class="panel line-panel">
+        <div class="panel-header">
+          <h2>Suggested Line</h2>
+          <div class="panel-actions">
+            <button id="clearLineBtn">Clear</button>
+            <button id="confirmBtn" class="primary">Confirm played</button>
+          </div>
+        </div>
+        <div id="lineList" class="line-list"></div>
+        <div class="line-actions">
+          <button id="addToLineBtn">Add player</button>
+        </div>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-header">
+          <h2>History</h2>
+          <div class="panel-actions">
+            <button id="undoBtn">Undo last</button>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </main>
+
+    <dialog id="pickerDialog">
+      <form method="dialog" class="picker-form">
+        <header>
+          <h3>Choose replacement</h3>
+        </header>
+        <div class="picker-controls">
+          <label>
+            Gender
+            <select id="pickerGender">
+              <option value="any">Any</option>
+              <option value="M">MM</option>
+              <option value="W">WM</option>
+            </select>
+          </label>
+          <label>
+            Position
+            <select id="pickerPosition">
+              <option value="any">Any</option>
+              <option value="handler">Handler</option>
+              <option value="cutter">Cutter</option>
+            </select>
+          </label>
+        </div>
+        <div id="pickerList" class="picker-list"></div>
+        <menu class="dialog-actions">
+          <button value="cancel">Close</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <footer class="app-footer">
+      <small>
+        Data is stored locally in your browser. No accounts required.
+      </small>
+    </footer>
+
+    <script src="./app.js" defer></script>
+  </body>
+  </html>
+
+
