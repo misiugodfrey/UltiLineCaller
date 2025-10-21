@@ -379,23 +379,34 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('suggestBtn').addEventListener('click', suggestLine);
   document.getElementById('takeHalfBtn').addEventListener('click', () => {
-    const who = prompt('Who took half? Enter "Us" or "Them"');
-    if (!who) return;
-    const val = who.trim().toLowerCase();
-    if (val !== 'us' && val !== 'them') { alert('Please type Us or Them'); return; }
+    document.getElementById('halfDialog').showModal();
+  });
+  document.getElementById('halfUsBtn').addEventListener('click', (e) => {
+    e.preventDefault();
     state.score = state.score || { us: 0, them: 0 };
-    if (val === 'us') state.score.us += 1; else state.score.them += 1;
+    state.score.us += 1;
     state.suppressNextScore = true;
     saveState();
     renderHistory();
+    document.getElementById('halfDialog').close();
+  });
+  document.getElementById('halfThemBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    state.score = state.score || { us: 0, them: 0 };
+    state.score.them += 1;
+    state.suppressNextScore = true;
+    saveState();
+    renderHistory();
+    document.getElementById('halfDialog').close();
   });
   document.getElementById('clearLineBtn').addEventListener('click', () => renderLine([]));
   document.getElementById('confirmBtn').addEventListener('click', confirmPlayed);
   document.getElementById('undoBtn').addEventListener('click', undoLast);
   document.getElementById('clearHistoryBtn').addEventListener('click', () => {
-    if (!confirm('Clear game history and reset score?')) return;
+    if (!confirm('Start a new game? This clears history and resets score.')) return;
     state.history = [];
     state.score = { us: 0, them: 0 };
+    state.suppressNextScore = true;
     saveState();
     renderHistory();
   });

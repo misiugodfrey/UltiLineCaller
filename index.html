@@ -86,7 +86,7 @@
           <div class="panel-actions">
             <button id="historyToggleBtn" aria-expanded="true" aria-controls="historyContent">Collapse</button>
             <button id="undoBtn">Undo last</button>
-            <button id="clearHistoryBtn" class="danger">Clear game history</button>
+            <button id="clearHistoryBtn" class="danger">New Game</button>
           </div>
         </div>
         <div id="historyContent">
@@ -119,6 +119,20 @@
           </label>
         </div>
         <div id="pickerList" class="picker-list"></div>
+        <menu class="dialog-actions">
+          <button value="cancel">Close</button>
+        </menu>
+      </form>
+    </dialog>
+    <dialog id="halfDialog">
+      <form method="dialog" class="picker-form">
+        <header>
+          <h3>Who took half?</h3>
+        </header>
+        <div class="picker-list">
+          <div class="row"><button id="halfUsBtn" class="primary">Us</button></div>
+          <div class="row"><button id="halfThemBtn">Them</button></div>
+        </div>
         <menu class="dialog-actions">
           <button value="cancel">Close</button>
         </menu>
