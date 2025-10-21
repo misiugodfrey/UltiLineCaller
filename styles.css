@@ -54,13 +54,20 @@ button.primary { background: linear-gradient(180deg, #1ccd67, #16a34a);
 button.danger { background: #2b0b0b; border-color: #3b1111; color: #fecaca; }
 
 .layout {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   padding: 1rem;
 }
+
+/* Mobile order: Line, History, then Roster */
+.line-panel { order: 1; }
+.history-panel { order: 2; }
+.roster-panel { order: 3; }
+
 @media (min-width: 900px) {
-  .layout { grid-template-columns: 1.1fr 1fr .9fr; }
+  .layout { display: grid; grid-template-columns: 1.1fr 1fr .9fr; }
+  .line-panel, .history-panel, .roster-panel { order: 0; }
 }
 
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: .8rem; }
