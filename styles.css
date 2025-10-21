@@ -76,6 +76,10 @@ button.danger { background: #2b0b0b; border-color: #3b1111; color: #fecaca; }
 
 .roster-list, .line-list, .history-list { padding: .5rem; display: grid; gap: .5rem; }
 
+/* Collapsible roster */
+#rosterContent { display: block; }
+.collapsed #rosterContent { display: none; }
+
 .row { display: grid; grid-template-columns: 1fr repeat(4, auto); gap: .5rem; align-items: center; padding: .5rem; border: 1px solid var(--border); border-radius: .6rem; background: #0c152a; }
 .row .tags { display: flex; gap: .35rem; flex-wrap: wrap; }
 .tag { font-size: .75rem; padding: .15rem .4rem; border-radius: .4rem; background: #0f1b35; border: 1px solid #1f2a44; color: #cbd5e1; }
@@ -102,6 +106,7 @@ button.danger { background: #2b0b0b; border-color: #3b1111; color: #fecaca; }
 
 .draggable { cursor: grab; }
 .draggable:active { cursor: grabbing; }
+
 
 
 

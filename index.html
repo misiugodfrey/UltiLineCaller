@@ -30,10 +30,11 @@
     </header>
 
     <main class="layout">
-      <section class="panel roster-panel">
+      <section class="panel roster-panel" id="rosterPanel">
         <div class="panel-header">
           <h2>Roster</h2>
           <div class="panel-actions">
+            <button id="rosterToggleBtn" aria-expanded="true" aria-controls="rosterContent">Collapse</button>
             <button id="exportBtn">Export</button>
             <label class="import-label">
               <input type="file" id="importFile" accept="application/json" hidden>
@@ -41,25 +42,27 @@
             </label>
           </div>
         </div>
-        <form id="addPlayerForm" class="add-player">
-          <input id="playerName" type="text" placeholder="Name" required>
-          <select id="playerGender" required>
-            <option value="M">Man-Matching (MM)</option>
-            <option value="W">Woman-Matching (WM)</option>
-          </select>
-          <select id="playerPosition" required>
-            <option value="both">Both</option>
-            <option value="handler">Handler</option>
-            <option value="cutter">Cutter</option>
-          </select>
-          <select id="playerPref" required>
-            <option value="either">Either</option>
-            <option value="O">O-line</option>
-            <option value="D">D-line</option>
-          </select>
-          <button type="submit" class="primary">Add</button>
-        </form>
-        <div id="rosterList" class="roster-list"></div>
+        <div id="rosterContent">
+          <form id="addPlayerForm" class="add-player">
+            <input id="playerName" type="text" placeholder="Name" required>
+            <select id="playerGender" required>
+              <option value="M">Man-Matching (MM)</option>
+              <option value="W">Woman-Matching (WM)</option>
+            </select>
+            <select id="playerPosition" required>
+              <option value="both">Both</option>
+              <option value="handler">Handler</option>
+              <option value="cutter">Cutter</option>
+            </select>
+            <select id="playerPref" required>
+              <option value="either">Either</option>
+              <option value="O">O-line</option>
+              <option value="D">D-line</option>
+            </select>
+            <button type="submit" class="primary">Add</button>
+          </form>
+          <div id="rosterList" class="roster-list"></div>
+        </div>
       </section>
 
       <section class="panel line-panel">

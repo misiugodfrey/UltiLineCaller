@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'ulc_state_v1';
 
 /** @typedef {{id:string,name:string,gender:'M'|'W',position:'handler'|'cutter'|'both',pref:'O'|'D'|'either',available:boolean,pointsPlayed:number}} Player */
-/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W'}} AppState */
+/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', ui?: { rosterCollapsed?: boolean }}} AppState */
 
 /** @type {AppState} */
 let state = loadState();
@@ -18,10 +18,11 @@ function loadState() {
     parsed.nextContext = parsed.nextContext || 'O';
     parsed.nextRatio = parsed.nextRatio || '4M-3W';
     parsed.autoBase = parsed.autoBase || '4M-3W';
+    parsed.ui = parsed.ui || { rosterCollapsed: false };
     return parsed;
   } catch (e) {
     console.warn('Failed to load state, starting fresh', e);
-    return { players: [], history: [], nextContext: 'O', nextRatio: '4M-3W', autoBase: '4M-3W' };
+    return { players: [], history: [], nextContext: 'O', nextRatio: '4M-3W', autoBase: '4M-3W', ui: { rosterCollapsed: false } };
   }
 }
 
@@ -374,6 +375,25 @@ window.addEventListener('DOMContentLoaded', () => {
     if (val === '4M-3W' || val === '3M-4W') state.autoBase = val;
     saveState();
   });
+
+  // Roster collapsible
+  const rosterPanel = document.getElementById('rosterPanel');
+  const rosterToggleBtn = document.getElementById('rosterToggleBtn');
+  const applyCollapsed = () => {
+    rosterPanel.classList.toggle('collapsed', !!state.ui?.rosterCollapsed);
+    const expanded = !state.ui?.rosterCollapsed;
+    rosterToggleBtn.setAttribute('aria-expanded', String(expanded));
+    rosterToggleBtn.textContent = expanded ? 'Collapse' : 'Expand';
+  };
+  rosterToggleBtn.addEventListener('click', () => {
+    state.ui = state.ui || {};
+    // Default collapsed on small screens when first used
+    if (state.ui.rosterCollapsed == null) state.ui.rosterCollapsed = window.matchMedia('(max-width: 720px)').matches;
+    state.ui.rosterCollapsed = !state.ui.rosterCollapsed;
+    saveState();
+    applyCollapsed();
+  });
+  applyCollapsed();
 
   render();
 });
