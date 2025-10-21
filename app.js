@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'ulc_state_v1';
 
 /** @typedef {{id:string,name:string,gender:'M'|'W',position:'handler'|'cutter'|'both',pref:'O'|'D'|'either',available:boolean,pointsPlayed:number}} Player */
-/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', score?: { us:number, them:number }, ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
+/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', score?: { us:number, them:number }, suppressNextScore?: boolean, ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
 
 /** @type {AppState} */
 let state = loadState();
@@ -19,11 +19,12 @@ function loadState() {
     parsed.nextRatio = parsed.nextRatio || 'auto';
     parsed.autoBase = parsed.autoBase || '4M-3W';
     parsed.score = parsed.score || { us: 0, them: 0 };
+    parsed.suppressNextScore = parsed.suppressNextScore || false;
     parsed.ui = parsed.ui || { rosterCollapsed: false, historyCollapsed: false };
     return parsed;
   } catch (e) {
     console.warn('Failed to load state, starting fresh', e);
-    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', score: { us: 0, them: 0 }, ui: { rosterCollapsed: false, historyCollapsed: false } };
+    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', score: { us: 0, them: 0 }, suppressNextScore: false, ui: { rosterCollapsed: false, historyCollapsed: false } };
   }
 }
 
@@ -262,6 +263,7 @@ function confirmPlayed() {
   const context = /** @type {'O'|'D'} */ (document.getElementById('contextSelect').value);
   const ratioSel = document.getElementById('ratioSelect').value;
   const ratio = ratioSel === 'auto' ? currentRatio : ratioSel;
+  const isFirstPoint = state.history.length === 0;
   for (const id of currentLine) {
     const p = state.players.find(pl => pl.id === id);
     if (p) p.pointsPlayed += 1;
@@ -269,7 +271,10 @@ function confirmPlayed() {
   state.history.push({ timestamp: Date.now(), line: [...currentLine], context, ratio });
   // Score: D line -> Us +1, O line -> Them +1
   state.score = state.score || { us: 0, them: 0 };
-  if (context === 'D') state.score.us += 1; else state.score.them += 1;
+  if (!isFirstPoint && !state.suppressNextScore) {
+    if (context === 'D') state.score.us += 1; else state.score.them += 1;
+  }
+  state.suppressNextScore = false; // reset after use
   state.nextContext = context === 'O' ? 'D' : 'O';
   state.nextRatio = ratioSel; // keep selection, even if auto
   saveState();
@@ -373,6 +378,17 @@ window.addEventListener('DOMContentLoaded', () => {
     e.target.value = '';
   });
   document.getElementById('suggestBtn').addEventListener('click', suggestLine);
+  document.getElementById('takeHalfBtn').addEventListener('click', () => {
+    const who = prompt('Who took half? Enter "Us" or "Them"');
+    if (!who) return;
+    const val = who.trim().toLowerCase();
+    if (val !== 'us' && val !== 'them') { alert('Please type Us or Them'); return; }
+    state.score = state.score || { us: 0, them: 0 };
+    if (val === 'us') state.score.us += 1; else state.score.them += 1;
+    state.suppressNextScore = true;
+    saveState();
+    renderHistory();
+  });
   document.getElementById('clearLineBtn').addEventListener('click', () => renderLine([]));
   document.getElementById('confirmBtn').addEventListener('click', confirmPlayed);
   document.getElementById('undoBtn').addEventListener('click', undoLast);
