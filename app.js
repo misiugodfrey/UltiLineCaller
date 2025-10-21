@@ -377,7 +377,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('confirmBtn').addEventListener('click', confirmPlayed);
   document.getElementById('undoBtn').addEventListener('click', undoLast);
   document.getElementById('clearHistoryBtn').addEventListener('click', () => {
-    if (!confirm('Clear history and reset score?')) return;
+    if (!confirm('Clear game history and reset score?')) return;
     state.history = [];
     state.score = { us: 0, them: 0 };
     saveState();
