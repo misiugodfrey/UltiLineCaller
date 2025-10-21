@@ -419,8 +419,16 @@ window.addEventListener('DOMContentLoaded', () => {
     state.history = [];
     state.score = { us: 0, them: 0 };
     state.suppressNextScore = true;
+    state.halfSet = false; // reset End Game -> Take Half
     saveState();
     renderHistory();
+    // refresh half/end button label
+    const takeHalfBtn = document.getElementById('takeHalfBtn');
+    const halfDialogTitle = document.getElementById('halfDialogTitle');
+    if (takeHalfBtn && halfDialogTitle) {
+      takeHalfBtn.textContent = 'Take Half';
+      halfDialogTitle.textContent = 'Who took half?';
+    }
   });
   document.getElementById('addToLineBtn').addEventListener('click', () => replaceInLine('')); // opens picker
 
@@ -469,6 +477,23 @@ window.addEventListener('DOMContentLoaded', () => {
   applyHistoryCollapsed();
 
   render();
+  // Build version: try Last-Modified of app.js
+  (async () => {
+    const el = document.getElementById('buildVersion');
+    if (!el) return;
+    try {
+      const res = await fetch(new URL('./app.js', location.href), { method: 'HEAD', cache: 'no-store' });
+      const lm = res.headers.get('last-modified');
+      if (lm) {
+        const dt = new Date(lm);
+        el.textContent = 'build version: ' + dt.toLocaleString();
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+    el.textContent = 'build version: unknown';
+  })();
 });
 
 
