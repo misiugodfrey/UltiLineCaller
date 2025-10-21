@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'ulc_state_v1';
 
 /** @typedef {{id:string,name:string,gender:'M'|'W',position:'handler'|'cutter'|'both',pref:'O'|'D'|'either',available:boolean,pointsPlayed:number}} Player */
-/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', ui?: { rosterCollapsed?: boolean }}} AppState */
+/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
 
 /** @type {AppState} */
 let state = loadState();
@@ -10,19 +10,19 @@ let state = loadState();
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { players: [], history: [], nextContext: 'O', nextRatio: '4M-3W' };
+    if (!raw) return { players: [], history: [], nextContext: 'O', nextRatio: 'auto' };
     const parsed = JSON.parse(raw);
     // Backfill defaults
     parsed.players = (parsed.players || []).map(p => ({ available: true, pointsPlayed: 0, ...p }));
     parsed.history = parsed.history || [];
     parsed.nextContext = parsed.nextContext || 'O';
-    parsed.nextRatio = parsed.nextRatio || '4M-3W';
+    parsed.nextRatio = parsed.nextRatio || 'auto';
     parsed.autoBase = parsed.autoBase || '4M-3W';
-    parsed.ui = parsed.ui || { rosterCollapsed: false };
+    parsed.ui = parsed.ui || { rosterCollapsed: false, historyCollapsed: false };
     return parsed;
   } catch (e) {
     console.warn('Failed to load state, starting fresh', e);
-    return { players: [], history: [], nextContext: 'O', nextRatio: '4M-3W', autoBase: '4M-3W', ui: { rosterCollapsed: false } };
+    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', ui: { rosterCollapsed: false, historyCollapsed: false } };
   }
 }
 
@@ -394,6 +394,23 @@ window.addEventListener('DOMContentLoaded', () => {
     applyCollapsed();
   });
   applyCollapsed();
+
+  // History collapsible
+  const historyPanel = document.getElementById('historyPanel');
+  const historyToggleBtn = document.getElementById('historyToggleBtn');
+  const applyHistoryCollapsed = () => {
+    historyPanel.classList.toggle('collapsed', !!state.ui?.historyCollapsed);
+    const expanded = !state.ui?.historyCollapsed;
+    historyToggleBtn.setAttribute('aria-expanded', String(expanded));
+    historyToggleBtn.textContent = expanded ? 'Collapse' : 'Expand';
+  };
+  historyToggleBtn.addEventListener('click', () => {
+    state.ui = state.ui || {};
+    state.ui.historyCollapsed = !state.ui.historyCollapsed;
+    saveState();
+    applyHistoryCollapsed();
+  });
+  applyHistoryCollapsed();
 
   render();
 });

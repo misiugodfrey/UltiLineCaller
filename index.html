@@ -79,14 +79,17 @@
         </div>
       </section>
 
-      <section class="panel history-panel">
+      <section class="panel history-panel" id="historyPanel">
         <div class="panel-header">
           <h2>History</h2>
           <div class="panel-actions">
+            <button id="historyToggleBtn" aria-expanded="true" aria-controls="historyContent">Collapse</button>
             <button id="undoBtn">Undo last</button>
           </div>
         </div>
-        <div id="historyList" class="history-list"></div>
+        <div id="historyContent">
+          <div id="historyList" class="history-list"></div>
+        </div>
       </section>
     </main>
 
