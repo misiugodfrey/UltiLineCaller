@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'ulc_state_v1';
 
 /** @typedef {{id:string,name:string,gender:'M'|'W',position:'handler'|'cutter'|'both',pref:'O'|'D'|'either',available:boolean,pointsPlayed:number}} Player */
-/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
+/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', score?: { us:number, them:number }, ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
 
 /** @type {AppState} */
 let state = loadState();
@@ -18,11 +18,12 @@ function loadState() {
     parsed.nextContext = parsed.nextContext || 'O';
     parsed.nextRatio = parsed.nextRatio || 'auto';
     parsed.autoBase = parsed.autoBase || '4M-3W';
+    parsed.score = parsed.score || { us: 0, them: 0 };
     parsed.ui = parsed.ui || { rosterCollapsed: false, historyCollapsed: false };
     return parsed;
   } catch (e) {
     console.warn('Failed to load state, starting fresh', e);
-    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', ui: { rosterCollapsed: false, historyCollapsed: false } };
+    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', score: { us: 0, them: 0 }, ui: { rosterCollapsed: false, historyCollapsed: false } };
   }
 }
 
@@ -191,6 +192,8 @@ function renderLine(players, usedRatio) {
 function renderHistory() {
   const list = document.getElementById('historyList');
   list.innerHTML = '';
+  const scoreEl = document.getElementById('scoreDisplay');
+  if (scoreEl) scoreEl.textContent = `Us ${state.score?.us ?? 0} – ${state.score?.them ?? 0} Them`;
   if (state.history.length === 0) {
     list.append(el('div', { class: 'empty' }, 'No points recorded yet.'));
     return;
@@ -264,6 +267,9 @@ function confirmPlayed() {
     if (p) p.pointsPlayed += 1;
   }
   state.history.push({ timestamp: Date.now(), line: [...currentLine], context, ratio });
+  // Score: D line -> Us +1, O line -> Them +1
+  state.score = state.score || { us: 0, them: 0 };
+  if (context === 'D') state.score.us += 1; else state.score.them += 1;
   state.nextContext = context === 'O' ? 'D' : 'O';
   state.nextRatio = ratioSel; // keep selection, even if auto
   saveState();
@@ -277,6 +283,10 @@ function undoLast() {
     const p = state.players.find(pl => pl.id === id);
     if (p) p.pointsPlayed = Math.max(0, p.pointsPlayed - 1);
   }
+  // Reverse score for the undone point
+  state.score = state.score || { us: 0, them: 0 };
+  if (last.context === 'D') state.score.us = Math.max(0, state.score.us - 1);
+  else state.score.them = Math.max(0, state.score.them - 1);
   saveState();
   render();
 }
@@ -366,6 +376,13 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('clearLineBtn').addEventListener('click', () => renderLine([]));
   document.getElementById('confirmBtn').addEventListener('click', confirmPlayed);
   document.getElementById('undoBtn').addEventListener('click', undoLast);
+  document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+    if (!confirm('Clear history and reset score?')) return;
+    state.history = [];
+    state.score = { us: 0, them: 0 };
+    saveState();
+    renderHistory();
+  });
   document.getElementById('addToLineBtn').addEventListener('click', () => replaceInLine('')); // opens picker
 
   document.getElementById('contextSelect').addEventListener('input', (e) => { state.nextContext = e.target.value; saveState(); });
