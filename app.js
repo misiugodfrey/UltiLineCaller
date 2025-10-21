@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'ulc_state_v1';
 
 /** @typedef {{id:string,name:string,gender:'M'|'W',position:'handler'|'cutter'|'both',pref:'O'|'D'|'either',available:boolean,pointsPlayed:number}} Player */
-/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', score?: { us:number, them:number }, suppressNextScore?: boolean, ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
+/** @typedef {{players: Player[], history: {timestamp:number, line:string[], context:'O'|'D', ratio:string}[], nextContext:'O'|'D', nextRatio:string, autoBase?: '4M-3W'|'3M-4W', score?: { us:number, them:number }, suppressNextScore?: boolean, halfSet?: boolean, ui?: { rosterCollapsed?: boolean, historyCollapsed?: boolean }}} AppState */
 
 /** @type {AppState} */
 let state = loadState();
@@ -20,11 +20,12 @@ function loadState() {
     parsed.autoBase = parsed.autoBase || '4M-3W';
     parsed.score = parsed.score || { us: 0, them: 0 };
     parsed.suppressNextScore = parsed.suppressNextScore || false;
+    parsed.halfSet = parsed.halfSet || false;
     parsed.ui = parsed.ui || { rosterCollapsed: false, historyCollapsed: false };
     return parsed;
   } catch (e) {
     console.warn('Failed to load state, starting fresh', e);
-    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', score: { us: 0, them: 0 }, suppressNextScore: false, ui: { rosterCollapsed: false, historyCollapsed: false } };
+    return { players: [], history: [], nextContext: 'O', nextRatio: 'auto', autoBase: '4M-3W', score: { us: 0, them: 0 }, suppressNextScore: false, halfSet: false, ui: { rosterCollapsed: false, historyCollapsed: false } };
   }
 }
 
@@ -378,7 +379,13 @@ window.addEventListener('DOMContentLoaded', () => {
     e.target.value = '';
   });
   document.getElementById('suggestBtn').addEventListener('click', suggestLine);
-  document.getElementById('takeHalfBtn').addEventListener('click', () => {
+  const takeHalfBtn = document.getElementById('takeHalfBtn');
+  const halfDialogTitle = document.getElementById('halfDialogTitle');
+  const updateHalfButton = () => {
+    takeHalfBtn.textContent = state.halfSet ? 'End Game' : 'Take Half';
+    halfDialogTitle.textContent = state.halfSet ? 'Who scored the final point?' : 'Who took half?';
+  };
+  takeHalfBtn.addEventListener('click', () => {
     document.getElementById('halfDialog').showModal();
   });
   document.getElementById('halfUsBtn').addEventListener('click', (e) => {
@@ -386,19 +393,24 @@ window.addEventListener('DOMContentLoaded', () => {
     state.score = state.score || { us: 0, them: 0 };
     state.score.us += 1;
     state.suppressNextScore = true;
+    if (!state.halfSet) state.halfSet = true; // after taking half, switch future to End Game
     saveState();
     renderHistory();
     document.getElementById('halfDialog').close();
+    updateHalfButton();
   });
   document.getElementById('halfThemBtn').addEventListener('click', (e) => {
     e.preventDefault();
     state.score = state.score || { us: 0, them: 0 };
     state.score.them += 1;
     state.suppressNextScore = true;
+    if (!state.halfSet) state.halfSet = true;
     saveState();
     renderHistory();
     document.getElementById('halfDialog').close();
+    updateHalfButton();
   });
+  updateHalfButton();
   document.getElementById('clearLineBtn').addEventListener('click', () => renderLine([]));
   document.getElementById('confirmBtn').addEventListener('click', confirmPlayed);
   document.getElementById('undoBtn').addEventListener('click', undoLast);
