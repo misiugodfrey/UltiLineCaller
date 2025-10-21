@@ -1,7 +1,6 @@
 # Ultimate Line Caller
 
-A lightweight, client-only web app to help mixed-gender ultimate frisbee coaches call balanced lines during games. Uses Man-Matching (MM) and Woman-Matching (WM) terminology.
-
+A lightweight, client-only web app to help mixed-gender ultimate frisbee coaches call balanced lines during games.
 ## Features
 - Roster management: add, edit, delete, mark availability
 - Role and preferences: gender, position (handler/cutter/both), O/D preference
